@@ -7,6 +7,16 @@ namespace AAC20.Classes.Commands
     public enum ResultState
     {
         /// <summary>
+        /// Ошибка различия параметров
+        /// </summary>
+        InvalidParameters = -2,
+
+        /// <summary>
+        /// Команда не распознана
+        /// </summary>
+        InvalidCommand = -1,
+
+        /// <summary>
         /// Команда не выполнилась
         /// </summary>
         Failed = 0,
@@ -38,23 +48,31 @@ namespace AAC20.Classes.Commands
         public readonly string? Massage;
 
         /// <summary>
+        /// Имя выполняющейся команды
+        /// </summary>
+        public readonly string NameCommand;
+
+        /// <summary>
         /// Успешный итог выполнения команды
         /// </summary>
-        public static CommandStateResult Completed => new(ResultState.Complete, null, string.Empty);
+        /// <param name="NameCommand">Имя команды</param>
+        public static CommandStateResult Completed(string NameCommand) => new(ResultState.Complete, NameCommand, string.Empty, string.Empty);
 
         /// <summary>
         /// Ошибочный итог выполнения команды
         /// </summary>
         /// /// <param name="Message">Текст ошибки выводимый в консоль программу</param>
         /// <param name="Message_log">Текст который будет записан в лог программы</param>
-        public static CommandStateResult Failed(string Message, string Message_log) => new(ResultState.Failed, Message, Message_log);
+        /// <param name="Command">Имя команды</param>
+        public static CommandStateResult Failed(string Command, string Message, string Message_log) => new(ResultState.Failed, Command, Message, Message_log);
 
         /// <summary>
         /// Ошибочный итог выполнения команды
         /// </summary>
         /// /// <param name="Message">Текст ошибки выводимый в консоль программу</param>
         /// <param name="Message_log">Текст который будет записан в лог программы</param>
-        public static CommandStateResult Failed(string Message) => new(ResultState.Failed, Message);
+        /// <param name="Command">Имя команды</param>
+        public static CommandStateResult Failed(string Command, string Message) => new(ResultState.Failed, Command, Message);
 
         /// <summary>
         /// Ошибочный итог выполнения команды из-за недостатка параметров
@@ -62,7 +80,16 @@ namespace AAC20.Classes.Commands
         /// <param name="NameCommand">Имя команды которая привела к ошибке</param>
         public static CommandStateResult FaledParameteres(string NameCommand)
         {
-            return new(ResultState.Failed, $"Команда \"{NameCommand}\" привела к ошибке из-за недостатка параметров.");
+            return new(ResultState.InvalidParameters, NameCommand, $"Команда \"{NameCommand}\" привела к ошибке из-за недостатка параметров.");
+        }
+
+        /// <summary>
+        /// Ошибочный итог выполнения команды из-за типа параметров
+        /// </summary>
+        /// <param name="NameCommand">Имя команды которая привела к ошибке</param>
+        public static CommandStateResult FaledTypeParameteres(string NameCommand)
+        {
+            return new(ResultState.InvalidParameters, NameCommand, $"Команда \"{NameCommand}\" привела к ошибке из-за не правильного предоставления типа параметров.");
         }
 
         /// <summary>
@@ -71,7 +98,7 @@ namespace AAC20.Classes.Commands
         /// <param name="NameCommand">Имя команды которая привела к ошибке</param>
         public static CommandStateResult FaledCommand(string NameCommand)
         {
-            return new(ResultState.Failed, $"Команда \"{NameCommand}\" не найдена.");
+            return new(ResultState.InvalidCommand, NameCommand, $"Команда \"{NameCommand}\" не найдена.");
         }
 
         /// <summary>
@@ -80,8 +107,10 @@ namespace AAC20.Classes.Commands
         /// <param name="ResultState">Итоговое состояние выполнения</param>
         /// <param name="Massage">Сообщение в консольную строку</param>
         /// <param name="Massage_log">Сообщение в LOG</param>
-        private CommandStateResult(ResultState ResultState, string? Massage, string Massage_log)
+        /// <param name="Namу">Имя команды</param>
+        private CommandStateResult(ResultState ResultState, string Name, string? Massage, string Massage_log)
         {
+            NameCommand = Name;
             State = ResultState;
             this.Massage = Massage;
             LOGMassage = Massage_log;
@@ -92,8 +121,10 @@ namespace AAC20.Classes.Commands
         /// </summary>
         /// <param name="ResultState">Итоговое состояние выполнения</param>
         /// <param name="Massage">Сообщение в консольную строку</param>
-        private CommandStateResult(ResultState ResultState, string Massage)
+        /// <param name="Name">Имя команды</param>
+        private CommandStateResult(ResultState ResultState, string Name, string Massage)
         {
+            NameCommand = Name;
             State = ResultState;
             this.Massage = Massage;
             LOGMassage = Massage;

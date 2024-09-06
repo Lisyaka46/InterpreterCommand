@@ -24,7 +24,7 @@ namespace AAC20.Classes.Commands
         /// Параметры команды
         /// </summary>
         [AllowNull()]
-        public Parameter[]? Parameters { get; private set; }
+        public Parameter[] Parameters { get; private set; }
 
         /// <summary>
         /// Действие которое выполняет команда
@@ -68,7 +68,7 @@ namespace AAC20.Classes.Commands
         public static CommandStateResult ReadAndExecuteCommand(Buffer? BufferCommand,
             [NotNull()] ConsoleCommand[] ConsoleCommands, string TextCommand)
         {
-            string[]? Parameters = null;
+            string[] Parameters = [];
             string Name;
             if (TextCommand.Contains('*')) // command * param1, param2, param3 ...
             {
@@ -122,12 +122,42 @@ namespace AAC20.Classes.Commands
         /// </summary>
         /// <param name="WritingParameters">Написанные параметры</param>
         /// <returns>Совпадает правилу или нет</returns>
-        public bool AbsolutlyRequiredParameters(string[]? WritingParameters) =>
-            (WritingParameters?.Length ?? 0) >= (Parameters?.Count((i) => i.Absolutly == true) ?? 0);
+        public bool AbsolutlyRequiredParameters(string[] WritingParameters)
+        {
+            if (Parameters == null) return true;
+            else
+            {
+                int Count = Parameters.Count((i) => i.Absolutly == true);
+                if (WritingParameters.Length >= Parameters.Count((i) => i.Absolutly == true))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         /// <summary>
         /// Создать выполнение команды
         /// </summary>
-        public CommandStateResult ExecuteCommand(string[]? parameters) => Execute.Invoke(parameters ?? []).Result;
+        public CommandStateResult ExecuteCommand(string[] parameters)
+        {
+            object[] MainParameters = [];
+            if (Parameters != null)
+            {
+                MainParameters = new object[Parameters.Length];
+                for (int i = 0; i < Parameters.Length; i++)
+                {
+                    if (Parameters[i].TypeP == typeof(int))
+                    {
+                        try
+                        {
+                            MainParameters[i] = Convert.ToInt32(parameters[i]);
+                        }
+                        catch { return CommandStateResult.FaledTypeParameteres(Name); }
+                    }
+                }
+            }
+            return Execute.Invoke(this, MainParameters).Result;
+        }
     }
 }

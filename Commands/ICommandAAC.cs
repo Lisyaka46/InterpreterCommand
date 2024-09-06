@@ -12,9 +12,10 @@ namespace AAC20.Classes.Commands
         /// <summary>
         /// Делегат события выполнения команды
         /// </summary>
+        /// <param name="MainCommand">Выполняющаяся команда</param>
         /// <param name="ParametersValue">Параметры команды</param>
         /// <returns>Итог выполнения команды</returns>
-        public delegate Task<CommandStateResult> ExecuteCom(string[] ParametersValue);
+        public delegate Task<CommandStateResult> ExecuteCom(ICommandAAC MainCommand, object[] ParametersValue);
 
         /// <summary>
         /// Действие которое выполняет команда
@@ -43,20 +44,20 @@ namespace AAC20.Classes.Commands
         /// <summary>
         /// Создать выполнение команды
         /// </summary>
-        internal CommandStateResult ExecuteCommand(string[]? parameters);
+        protected CommandStateResult ExecuteCommand(string[] parameters);
 
         /// <summary>
         /// Узнать написаны ли обязательные параметры команды
         /// </summary>
         /// <param name="WritingParameters">Написанные параметры</param>
         /// <returns>Совпадает правилу или нет</returns>
-        internal abstract bool AbsolutlyRequiredParameters(string[]? WritingParameters);
+        internal abstract bool AbsolutlyRequiredParameters(string[] WritingParameters);
 
         [GeneratedRegex(@"[^*]+")]
-        internal static partial Regex RegexNameCommand();
+        internal sealed static partial Regex RegexNameCommand();
         [GeneratedRegex(@"\*.*")]
-        internal static partial Regex RegexParameterCommand();
+        internal sealed static partial Regex RegexParameterCommand();
         [GeneratedRegex(@"([^%,]+|%,|%%)+")]
-        internal static partial Regex RegexSortParamCommand();
+        internal sealed static partial Regex RegexSortParamCommand();
     }
 }

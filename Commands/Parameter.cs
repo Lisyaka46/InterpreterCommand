@@ -14,7 +14,8 @@ namespace AAC20.Classes.Commands
     /// </remarks>
     /// <param name="NameParameter">Имя параметра</param>
     /// <param name="AbsolutlyParameter">Обязателен или не обязателен данный параметр (по умолчанию true)</param>
-    public class Parameter(string NameParameter, bool AbsolutlyParameter = true)
+    /// /// <param name="TypeParameter">Ожидаемый тип параметра</param>
+    public class Parameter(string NameParameter, Type TypeParameter, bool AbsolutlyParameter = true)
     {
         /// <summary>
         /// Имя параметра команды
@@ -25,5 +26,10 @@ namespace AAC20.Classes.Commands
         /// Значение параметра команды
         /// </summary>
         public readonly bool Absolutly = AbsolutlyParameter;
+
+        /// <summary>
+        /// Тип параметра команды
+        /// </summary>
+        public readonly Type TypeP = TypeParameter;
     }
 }
