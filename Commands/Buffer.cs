@@ -32,47 +32,6 @@ namespace AAC20.Classes
         public int Length => BufferElements.Length;
 
         /// <summary>
-        /// Класс буферной команды
-        /// </summary>
-        /// <typeparam name="T">Тип команды для сохранения</typeparam>
-        /// <param name="Command">Ссылка на команду</param>
-        /// <param name="Name">Имя команды</param>
-        /// <param name="Parameters">Параметры команды</param>
-        public class BufferCommand<T>(ref T? Command, string Name, string[] Parameters, string StringCommand) where T : ICommandAAC
-        {
-            /// <summary>
-            /// Ссылка на команду
-            /// </summary>
-            public T? RefCommand = Command;
-
-            /// <summary>
-            /// Пропись сохранённой команды
-            /// </summary>
-            public readonly string TextCommand = StringCommand;
-
-            /// <summary>
-            /// Имя сохранённой команды
-            /// </summary>
-            public readonly string Name = Name;
-
-            /// <summary>
-            /// Параметры сохранённой команды
-            /// </summary>
-            private readonly string[] Parameters = Parameters;
-
-            /// <summary>
-            /// Создать выполнение сохранённой команды
-            /// </summary>
-            /// <returns>Итог выполнения команды</returns>
-            public CommandStateResult ExecuteCommand()
-            {
-                if (RefCommand == null) return CommandStateResult.FaledCommand(Name);
-                else if (RefCommand.AbsolutlyRequiredParameters(Parameters)) return RefCommand.ExecuteCommand(Parameters);
-                else return CommandStateResult.FaledParameteres(Name);
-            }
-        }
-
-        /// <summary>
         /// Индексатор буфера элементов
         /// </summary>
         /// <param name="key">Индекс читаемого элемента</param>
