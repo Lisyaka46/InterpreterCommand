@@ -1,11 +1,9 @@
-﻿using AAC20.Classes.Commands;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
-using static AAC20.Classes.Buffer;
 
-namespace AAC20.Classes
+namespace Interpreter.Classes
 {
     /// <summary>
     /// Буфер консольных команд
@@ -16,6 +14,43 @@ namespace AAC20.Classes
     /// <param name="CountBuffer">Количество сохраняемых команд в буфер</param>
     public class Buffer(int CountBuffer = 50)
     {
+        /// <summary>
+        /// Делегат события добавления элемента в буфер
+        /// </summary>
+        /// <param name="Name">Имя команды</param>
+        public delegate void DelegateAddElement(string Name);
+
+        /// <summary>
+        /// Делегат события удаления элемента из буфера
+        /// </summary>
+        /// <param name="Index">Индекс удаляемого элемента</param>
+        public delegate void DelegateIndexElement(int Index);
+
+        /// <summary>
+        /// Делегат события сортировки буфера
+        /// </summary>
+        public delegate void DelegateEventBuffer();
+
+        /// <summary>
+        /// Событие добавление элемента
+        /// </summary>
+        public event DelegateAddElement? AddElement;
+
+        /// <summary>
+        /// Событие сортировки буфера
+        /// </summary>
+        public event DelegateIndexElement? SortBuffer;
+
+        /// <summary>
+        /// Событие удаление элемента
+        /// </summary>
+        public event DelegateIndexElement? DelElement;
+
+        /// <summary>
+        /// Событие очистка буфера
+        /// </summary>
+        public event DelegateEventBuffer? ClearBuffer;
+
         /// <summary>
         /// Массив элементов буфера
         /// </summary>
@@ -70,12 +105,10 @@ namespace AAC20.Classes
         {
             if (Count > 0)
             {
-                try
-                {
-                    ReSort(index);
-                    Count--;
-                }
-                catch { }
+                ReSort(index);
+                Count--;
+                DelElement?.Invoke(index);
+                SortBuffer?.Invoke(index);
             }
         }
 
@@ -90,8 +123,9 @@ namespace AAC20.Classes
             {
                 for (int i = index; i < Count - 1; i++)
                 {
-                    if (i != Count - 1) BufferElements[i] = BufferElements[i + 1];
+                    BufferElements[i] = BufferElements[i + 1];
                 }
+                BufferElements[Count - 1] = string.Empty;
             }
         }
 
@@ -104,6 +138,7 @@ namespace AAC20.Classes
             {
                 BufferElements = new string[BufferElements.Length];
                 Count = 0;
+                ClearBuffer?.Invoke();
             }
         }
 
@@ -128,7 +163,9 @@ namespace AAC20.Classes
             {
                 ReSort(0);
                 this[^1] = Command;
+                SortBuffer?.Invoke(0);
             }
+            AddElement?.Invoke(Command);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace AAC20.Classes.Commands
+namespace Interpreter.Commands
 {
     public partial interface ICommandAAC
     {
@@ -51,7 +51,7 @@ namespace AAC20.Classes.Commands
         /// </summary>
         /// <param name="WritingParameters">Написанные параметры</param>
         /// <returns>Совпадает правилу или нет</returns>
-        internal abstract bool AbsolutlyRequiredParameters(string[] WritingParameters);
+        protected abstract bool AbsolutlyRequiredParameters(string[] WritingParameters);
 
         [GeneratedRegex(@"[^*]+")]
         internal sealed static partial Regex RegexNameCommand();

@@ -1,8 +1,7 @@
-﻿using AAC20.Classes.Commands;
+﻿using Interpreter.Commands;
 using System.Diagnostics;
-using static AAC20.Classes.Buffer;
 
-namespace InterpreterCommand
+namespace Interpreter
 {
     internal class Program
     {
@@ -44,9 +43,9 @@ namespace InterpreterCommand
         /// <summary>
         /// Буфер команд
         /// </summary>
-        static AAC20.Classes.Buffer? BufferCommand;
+        static Classes.Buffer? BufferCommand;
 
-        static void Main(string[] args)
+        static void Main()
         {
             CommandStateResult Result;
             while (true)

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AAC20.Classes.Commands
+namespace Interpreter.Commands
 {
     /// <summary>
     /// Параметер команды

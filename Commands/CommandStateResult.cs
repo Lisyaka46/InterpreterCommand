@@ -1,5 +1,5 @@
 ﻿
-namespace AAC20.Classes.Commands
+namespace Interpreter.Commands
 {
     /// <summary>
     /// Конечные результаты выполнения команды
@@ -87,9 +87,10 @@ namespace AAC20.Classes.Commands
         /// Ошибочный итог выполнения команды из-за типа параметров
         /// </summary>
         /// <param name="NameCommand">Имя команды которая привела к ошибке</param>
-        public static CommandStateResult FaledTypeParameteres(string NameCommand)
+        /// <param name="NumberParam">Номер неправильного парметра</param>
+        public static CommandStateResult FaledTypeParameteres(string NameCommand, int NumberParam)
         {
-            return new(ResultState.InvalidParameters, NameCommand, $"Команда \"{NameCommand}\" привела к ошибке из-за не правильного предоставления типа параметров.");
+            return new(ResultState.InvalidParameters, NameCommand, $"Команда \"{NameCommand}\" привела к ошибке из-за не правильного предоставления типа параметра №{NumberParam}.");
         }
 
         /// <summary>

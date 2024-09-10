@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows.Markup;
 
-namespace AAC20.Classes.Commands
+namespace Interpreter.Commands
 {
     /// <summary>
     /// Консольная команда
@@ -65,14 +65,54 @@ namespace AAC20.Classes.Commands
         /// </summary>
         /// <param name="ConsoleCommands">Массив поиска консольных команд</param>
         /// <param name="TextCommand">Читаемая команда</param>
-        public static CommandStateResult ReadAndExecuteCommand(Buffer? BufferCommand,
+        public static CommandStateResult ReadAndExecuteCommand(Classes.Buffer? BufferCommand,
             [NotNull()] ConsoleCommand[] ConsoleCommands, string TextCommand)
         {
-            string[] Parameters = [];
+            string NameCommand = ReadNameCommand(TextCommand);
+            ConsoleCommand? SearchCommand = ConsoleCommands.SingleOrDefault(i => i.Name.Equals(NameCommand));
+            BufferCommand?.Add(NameCommand);
+            if (SearchCommand == null) return CommandStateResult.FaledCommand(NameCommand);
+            else
+            {
+                string[] Parameters = ReadParametersCommand(TextCommand);
+                return SearchCommand.ExecuteCommand(Parameters);
+            }
+        }
+
+        /// <summary>
+        /// Найти команду
+        /// </summary>
+        /// <param name="ConsoleCommands">Массив поиска консольных команд</param>
+        /// <param name="TextCommand">Читаемая команда</param>
+        public static ConsoleCommand? ReadCommand([NotNull()] ConsoleCommand[] ConsoleCommands, string TextCommand)
+        {
+            string NameCommand = ReadNameCommand(TextCommand);
+            return ConsoleCommands.SingleOrDefault(i => i.Name.Equals(NameCommand));
+        }
+
+        /// <summary>
+        /// Прочитать имя команды
+        /// </summary>
+        /// <param name="TextCommand">Читаемая команда</param>
+        public static string ReadNameCommand(string TextCommand)
+        {
             string Name;
             if (TextCommand.Contains('*')) // command * param1, param2, param3 ...
-            {
                 Name = ClearReplySymbol(ICommandAAC.RegexNameCommand().Match(TextCommand).Value, ' ');
+            else // command
+                Name = ClearReplySymbol(TextCommand, ' ');
+            return Name.Replace(" ", "_").ToLower();
+        }
+
+        /// <summary>
+        /// Прочитать параметры команды
+        /// </summary>
+        /// <param name="TextCommand">Читаемая команда</param>
+        public static string[] ReadParametersCommand(string TextCommand)
+        {
+            string[] Parameters = [];
+            if (TextCommand.Contains('*')) // command * param1, param2, param3 ...
+            {
                 Parameters = [..
                     ICommandAAC.RegexSortParamCommand().Matches(
                         ICommandAAC.RegexParameterCommand().Match(TextCommand).Value[1..])
@@ -91,18 +131,8 @@ namespace AAC20.Classes.Commands
                 }
             }
             else // command
-            {
-                Name = ClearReplySymbol(TextCommand, ' ');
-            }
-            Name = Name.Replace(" ", "_").ToLower();
-            ConsoleCommand? SearchCommand = ConsoleCommands.SingleOrDefault(i => i.Name.Equals(Name));
-            BufferCommand?.Add(Name);
-            if (SearchCommand == null) return CommandStateResult.FaledCommand(Name);
-            else
-            {
-                return SearchCommand.AbsolutlyRequiredParameters(Parameters) ?
-                    SearchCommand.ExecuteCommand(Parameters) : CommandStateResult.FaledParameteres(SearchCommand.Name);
-            }
+                return [];
+            return Parameters;
         }
 
         //
@@ -141,6 +171,7 @@ namespace AAC20.Classes.Commands
         /// </summary>
         public CommandStateResult ExecuteCommand(string[] parameters)
         {
+            if (!AbsolutlyRequiredParameters(parameters)) return CommandStateResult.FaledParameteres(Name);
             object[] MainParameters = [];
             if (Parameters != null)
             {
@@ -153,8 +184,9 @@ namespace AAC20.Classes.Commands
                         {
                             MainParameters[i] = Convert.ToInt32(parameters[i]);
                         }
-                        catch { return CommandStateResult.FaledTypeParameteres(Name); }
+                        catch { return CommandStateResult.FaledTypeParameteres(Name, i + 1); }
                     }
+                    else MainParameters[i] = parameters[i];
                 }
             }
             return Execute.Invoke(this, MainParameters).Result;
