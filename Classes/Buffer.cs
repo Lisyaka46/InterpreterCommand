@@ -12,7 +12,7 @@ namespace Interpreter.Classes
     /// Инициализировать новый буфер команд
     /// </remarks>
     /// <param name="CountBuffer">Количество сохраняемых команд в буфер</param>
-    public class Buffer(int CountBuffer = 50)
+    public class Buffer(int CountBuffer = 7)
     {
         /// <summary>
         /// Делегат события добавления элемента в буфер
@@ -101,14 +101,19 @@ namespace Interpreter.Classes
         /// Удалить элемент буфера
         /// </summary>
         /// <param name="index">Индекс удаляемого элемента</param>
-        internal void Delete(int index)
+        public void Delete(int index)
         {
             if (Count > 0)
             {
-                ReSort(index);
-                Count--;
-                DelElement?.Invoke(index);
-                SortBuffer?.Invoke(index);
+                if (index < 0 || index >= Count)
+                    throw new IndexOutOfRangeException($"Удаляемый элемент из буфера сохранённых команд не найден ({index}:{Count})");
+                else
+                {
+                    ReSort(index);
+                    Count--;
+                    DelElement?.Invoke(index);
+                    SortBuffer?.Invoke(index);
+                }
             }
         }
 
@@ -119,7 +124,7 @@ namespace Interpreter.Classes
         /// <param name="AnimateAction">Анимировать сортировку или нет</param>
         private void ReSort(int index)
         {
-            if (Count > 1 && index < Count - 1)
+            if (Count > 1 && index <= Count - 1)
             {
                 for (int i = index; i < Count - 1; i++)
                 {
@@ -149,10 +154,6 @@ namespace Interpreter.Classes
         /// При переполнении самый первый элемент удаляется и добавляется текущий
         /// </remarks>
         /// <param name="Command">Элемент буфера</param>
-        /// <param name="Name">Имя команды</param>
-        /// <param name="Parameteres">Параметры выполняемой команды</param>
-        /// <param name="StringCommand">Пропись команды</param>
-        /// <param name="ChildrenElements">Сетка элементов буфера</param>
         public void Add(string Command)
         {
             if (Count < BufferElements.Length)
