@@ -186,6 +186,12 @@ namespace Interpreter.Commands
                         }
                         catch { return CommandStateResult.FaledTypeParameteres(Name, i + 1); }
                     }
+                    else if (Parameters[i].TypeP == typeof(bool))
+                    {
+                        if (parameters[i].ToLower().Equals("true") || parameters[i].Equals("1")) MainParameters[i] = true;
+                        else if (parameters[i].ToLower().Equals("false") || parameters[i].Equals("0")) MainParameters[i] = false;
+                        else CommandStateResult.FaledTypeParameteres(Name, i + 1);
+                    }
                     else MainParameters[i] = parameters[i];
                 }
             }
