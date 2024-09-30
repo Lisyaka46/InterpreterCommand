@@ -45,7 +45,7 @@ namespace Interpreter.Commands
         /// <summary>
         /// Сообщение в консольную строку
         /// </summary>
-        public readonly string? Massage;
+        public readonly string Massage;
 
         /// <summary>
         /// Имя выполняющейся команды
@@ -109,7 +109,7 @@ namespace Interpreter.Commands
         /// <param name="Massage">Сообщение в консольную строку</param>
         /// <param name="Massage_log">Сообщение в LOG</param>
         /// <param name="Namу">Имя команды</param>
-        private CommandStateResult(ResultState ResultState, string Name, string? Massage, string Massage_log)
+        private CommandStateResult(ResultState ResultState, string Name, string Massage, string Massage_log)
         {
             NameCommand = Name;
             State = ResultState;
@@ -128,7 +128,7 @@ namespace Interpreter.Commands
             NameCommand = Name;
             State = ResultState;
             this.Massage = Massage;
-            LOGMassage = Massage;
+            LOGMassage = string.Empty;
         }
     }
 }
