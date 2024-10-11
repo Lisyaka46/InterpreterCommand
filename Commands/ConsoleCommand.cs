@@ -1,8 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Windows.Markup;
-using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace Interpreter.Commands
 {
@@ -102,7 +99,7 @@ namespace Interpreter.Commands
                 Name = ClearReplySymbol(ICommandAAC.RegexNameCommand().Match(TextCommand).Value, ' ');
             else // command
                 Name = ClearReplySymbol(TextCommand, ' ');
-            return Name.Replace(" ", "_").ToLower();
+            return Name.Replace(' ', '_').ToLower();
         }
 
         /// <summary>
@@ -111,7 +108,7 @@ namespace Interpreter.Commands
         /// <param name="TextCommand">Читаемая команда</param>
         public static string[] ReadParametersCommand(string TextCommand)
         {
-            string[] Parameters = [];
+            string[] Parameters = []; // command
             if (TextCommand.Contains('*')) // command * param1, param2, param3 ...
             {
                 Parameters = [..
@@ -131,21 +128,22 @@ namespace Interpreter.Commands
                     Parameters[i] = Parameters[i].Replace("%%", "%");
                 }
             }
-            else // command
-                return [];
             return Parameters;
         }
 
-        //
+        /// <summary>
+        /// Удаление повторяющихся символов
+        /// </summary>
+        /// <param name="Text">Текст</param>
+        /// <param name="Symbol">символ поиска в тексте</param>
+        /// <returns>Очищенный текст от повторяющегося символа</returns>
         private static string ClearReplySymbol(string Text, char Symbol)
         {
-            Text = new([.. Text.Reverse()]);
-            for (int i = 0, count = 0; i < Text.Length; i++)
+            foreach (Match m in Regex.Matches(Text, Symbol + @"{2,}"))
             {
-                if (Text[i] == Symbol) count = i + 1;
-                else return new([.. Text.Remove(0, count).Reverse()]);
+                Text = Text.Replace(m.Value, Symbol.ToString());
             }
-            return new([.. Text.Reverse()]);
+            return Text;
         }
 
         /// <summary>
@@ -156,15 +154,7 @@ namespace Interpreter.Commands
         public bool AbsolutlyRequiredParameters(string[] WritingParameters)
         {
             if (Parameters == null) return true;
-            else
-            {
-                int Count = Parameters.Count((i) => i.Absolutly == true);
-                if (WritingParameters.Length >= Parameters.Count((i) => i.Absolutly == true))
-                {
-                    return true;
-                }
-            }
-            return false;
+            else return WritingParameters.Length >= Parameters.Count((i) => i.Absolutly == true);
         }
 
         /// <summary>

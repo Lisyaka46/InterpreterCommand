@@ -53,10 +53,24 @@ namespace Interpreter.Commands
         /// <returns>Совпадает правилу или нет</returns>
         protected abstract bool AbsolutlyRequiredParameters(string[] WritingParameters);
 
+        /// <summary>
+        /// Регулярное выражение имени команды
+        /// </summary>
+        /// <returns>Регулярное выражение</returns>
         [GeneratedRegex(@"[^*]+")]
         internal sealed static partial Regex RegexNameCommand();
+
+        /// <summary>
+        /// Регулярное выражение сортировки имени и параметров команды
+        /// </summary>
+        /// <returns>Регулярное выражение</returns>
         [GeneratedRegex(@"\*.*")]
         internal sealed static partial Regex RegexParameterCommand();
+
+        /// <summary>
+        /// Регулярное выражение сортировки параметров от специальных символов
+        /// </summary>
+        /// <returns>Регулярное выражение</returns>
         [GeneratedRegex(@"([^%,]+|%,|%%)+")]
         internal sealed static partial Regex RegexSortParamCommand();
     }
