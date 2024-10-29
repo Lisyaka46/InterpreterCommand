@@ -1,12 +1,14 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using Interpreter.Interfaces;
+using Interpreter.Classes;
 
 namespace Interpreter.Commands
 {
     /// <summary>
     /// Консольная команда
     /// </summary>
-    public partial class ConsoleCommand : ICommandAAC
+    public partial class ConsoleCommand : IConsoleCommand
     {
         /// <summary>
         /// Имя команды
@@ -27,7 +29,7 @@ namespace Interpreter.Commands
         /// <summary>
         /// Действие которое выполняет команда
         /// </summary>
-        private event ICommandAAC.ExecuteCom Execute;
+        internal event IConsoleCommand.ExecuteCom Execute;
 
         /// <summary>
         /// Инициализировать объект консольной команды с параметрами
@@ -36,7 +38,7 @@ namespace Interpreter.Commands
         /// <param name="Parameters">Параметры команды</param>
         /// <param name="Description">Описание команды</param>
         /// <param name="Execute">Действие выполнения</param>
-        public ConsoleCommand(string Name, Parameter[] Parameters, string Description, ICommandAAC.ExecuteCom Execute)
+        public ConsoleCommand(string Name, Parameter[] Parameters, string Description, IConsoleCommand.ExecuteCom Execute)
         {
             this.Name = Name;
             this.Parameters = Parameters;
@@ -51,99 +53,11 @@ namespace Interpreter.Commands
         /// <param name="Name">Имя</param>
         /// <param name="Description">Описание команды</param>
         /// <param name="Execute">Действие выполнения</param>
-        public ConsoleCommand(string Name, string Description, ICommandAAC.ExecuteCom Execute)
+        public ConsoleCommand(string Name, string Description, IConsoleCommand.ExecuteCom Execute)
         {
             this.Name = Name;
             this.Description = Description;
             this.Execute = Execute;
-        }
-
-        /// <summary>
-        /// Прочитать и выполнить команду
-        /// </summary>
-        /// <param name="ConsoleCommands">Массив поиска консольных команд</param>
-        /// <param name="TextCommand">Читаемая команда</param>
-        public static CommandStateResult ReadAndExecuteCommand(Classes.Buffer? BufferCommand,
-            [NotNull()] ConsoleCommand[] ConsoleCommands, string TextCommand)
-        {
-            string NameCommand = ReadNameCommand(TextCommand);
-            ConsoleCommand? SearchCommand = ConsoleCommands.SingleOrDefault(i => i.Name.Equals(NameCommand));
-            BufferCommand?.Add(NameCommand);
-            if (SearchCommand == null) return CommandStateResult.FaledCommand(NameCommand);
-            else
-            {
-                string[] Parameters = ReadParametersCommand(TextCommand);
-                return SearchCommand.ExecuteCommand(Parameters);
-            }
-        }
-
-        /// <summary>
-        /// Найти команду
-        /// </summary>
-        /// <param name="ConsoleCommands">Массив поиска консольных команд</param>
-        /// <param name="TextCommand">Читаемая команда</param>
-        public static ConsoleCommand? ReadCommand([NotNull()] ConsoleCommand[] ConsoleCommands, string TextCommand)
-        {
-            string NameCommand = ReadNameCommand(TextCommand);
-            return ConsoleCommands.SingleOrDefault(i => i.Name.Equals(NameCommand));
-        }
-
-        /// <summary>
-        /// Прочитать имя команды
-        /// </summary>
-        /// <param name="TextCommand">Читаемая команда</param>
-        public static string ReadNameCommand(string TextCommand)
-        {
-            string Name;
-            if (TextCommand.Contains('*')) // command * param1, param2, param3 ...
-                Name = ClearReplySymbol(ICommandAAC.RegexNameCommand().Match(TextCommand).Value, ' ');
-            else // command
-                Name = ClearReplySymbol(TextCommand, ' ');
-            return Name.Replace(' ', '_').ToLower();
-        }
-
-        /// <summary>
-        /// Прочитать параметры команды
-        /// </summary>
-        /// <param name="TextCommand">Читаемая команда</param>
-        public static string[] ReadParametersCommand(string TextCommand)
-        {
-            string[] Parameters = []; // command
-            if (TextCommand.Contains('*')) // command * param1, param2, param3 ...
-            {
-                Parameters = [..
-                    ICommandAAC.RegexSortParamCommand().Matches(
-                        ICommandAAC.RegexParameterCommand().Match(TextCommand).Value[1..])
-                    .Select((i) => i.Value) ];
-                for (int i = 0; i < Parameters.Length; i++)
-                {
-                    switch (Parameters[i][0])
-                    {
-                        case ' ':
-                        case '~':
-                            Parameters[i] = Parameters[i][1..];
-                            break;
-                    }
-                    Parameters[i] = Parameters[i].Replace("%,", ",");
-                    Parameters[i] = Parameters[i].Replace("%%", "%");
-                }
-            }
-            return Parameters;
-        }
-
-        /// <summary>
-        /// Удаление повторяющихся символов
-        /// </summary>
-        /// <param name="Text">Текст</param>
-        /// <param name="Symbol">символ поиска в тексте</param>
-        /// <returns>Очищенный текст от повторяющегося символа</returns>
-        private static string ClearReplySymbol(string Text, char Symbol)
-        {
-            foreach (Match m in Regex.Matches(Text, Symbol + @"{2,}"))
-            {
-                Text = Text.Replace(m.Value, Symbol.ToString());
-            }
-            return Text;
         }
 
         /// <summary>
@@ -160,6 +74,7 @@ namespace Interpreter.Commands
         /// <summary>
         /// Создать выполнение команды
         /// </summary>
+        /// <param name="parameters">Параметры команды</param>
         public CommandStateResult ExecuteCommand(string[] parameters)
         {
             if (!AbsolutlyRequiredParameters(parameters)) return CommandStateResult.FaledParameteres(Name);
@@ -191,6 +106,15 @@ namespace Interpreter.Commands
                 }
             }
             return Execute.Invoke(this, MainParameters).Result;
+        }
+
+        /// <summary>
+        /// Создать выполнение команды
+        /// </summary>
+        public CommandStateResult ExecuteCommand()
+        {
+            if (Parameters == null) return Execute.Invoke(this, []).Result;
+            return CommandStateResult.FaledParameteres(Name);
         }
     }
 }

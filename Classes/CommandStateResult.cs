@@ -1,5 +1,5 @@
 ﻿
-namespace Interpreter.Commands
+namespace Interpreter.Classes
 {
     /// <summary>
     /// Конечные результаты выполнения команды

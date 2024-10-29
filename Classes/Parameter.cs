@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace Interpreter.Commands
+namespace Interpreter.Classes
 {
     /// <summary>
     /// Параметер команды

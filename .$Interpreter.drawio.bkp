@@ -1,4 +1,4 @@
-<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.17 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.17" pages="2">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0" version="24.7.12">
   <diagram name="Страница — 1" id="6yfrJILuI16yddM4j8pK">
     <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="800" pageHeight="1600" math="0" shadow="0">
       <root>
@@ -259,32 +259,6 @@
         </mxCell>
         <mxCell id="7H0BYYTjCoyCF7kMgZCN-75" value="+ AbsolutlyRequiredParameters(WritingParameters : string[0..*]) : bool " style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;fontColor=#006600;" vertex="1" parent="7H0BYYTjCoyCF7kMgZCN-66">
           <mxGeometry y="280" width="510" height="22" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
-  <diagram id="8DL-88XRQ0YHoD6h0Jdw" name="CORE">
-    <mxGraphModel dx="1647" dy="548" grid="0" gridSize="10" guides="0" tooltips="1" connect="0" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="KtqJLQ6ByM1_yX_7Fcq4-1" value="AliasCommand" style="rounded=1;whiteSpace=wrap;fontSize=18;fontColor=#70967C;fontFamily=Lucida Console;" vertex="1" parent="1">
-          <mxGeometry x="671" y="629" width="180" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="KtqJLQ6ByM1_yX_7Fcq4-2" style="rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=12 12;strokeWidth=2;endArrow=none;endFill=0;flowAnimation=1;" edge="1" parent="1" source="KtqJLQ6ByM1_yX_7Fcq4-1" target="KtqJLQ6ByM1_yX_7Fcq4-5">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-113" y="644" as="sourcePoint" />
-            <mxPoint x="157" y="714" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="KtqJLQ6ByM1_yX_7Fcq4-3" style="rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=none;endFill=0;dashed=1;dashPattern=12 12;flowAnimation=1;" edge="1" parent="1" source="KtqJLQ6ByM1_yX_7Fcq4-4" target="KtqJLQ6ByM1_yX_7Fcq4-5">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="KtqJLQ6ByM1_yX_7Fcq4-4" value="IConsoleCommand" style="rounded=1;whiteSpace=wrap;fontSize=18;fontColor=#70967C;fontFamily=Lucida Console;" vertex="1" parent="1">
-          <mxGeometry x="202" y="601" width="191" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="KtqJLQ6ByM1_yX_7Fcq4-5" value="ICommandAAC" style="rounded=1;whiteSpace=wrap;fontSize=18;fontColor=#70967C;fontFamily=Lucida Console;strokeWidth=3;" vertex="1" parent="1">
-          <mxGeometry x="436" y="495" width="188" height="80" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
