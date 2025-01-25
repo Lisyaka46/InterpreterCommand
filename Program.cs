@@ -72,7 +72,7 @@ namespace Interpreter
                 {
                     Result = ICommandAAC.ReadAndExecuteCommand(null, [.. DataAliases], Command);
                 }
-                Console.WriteLine($"\"{Result.NameCommand}\" | State: {Result.State} | Message: \"{Result.Massage}\"");
+                Console.WriteLine($"\"{Result.NameCommand}\" | State: {Result.State} | Message: \"{Result.Message}\"");
             }
         }
     }

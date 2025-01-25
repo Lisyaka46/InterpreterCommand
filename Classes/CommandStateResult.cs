@@ -1,5 +1,4 @@
-﻿
-namespace Interpreter.Classes
+﻿namespace Interpreter.Classes
 {
     /// <summary>
     /// Конечные результаты выполнения команды
@@ -30,7 +29,7 @@ namespace Interpreter.Classes
     /// <summary>
     /// Объект итогового состояния выполнения команды
     /// </summary>
-    public class CommandStateResult
+    public readonly struct CommandStateResult
     {
         /// <summary>
         /// Итоговое состояние команды
@@ -38,14 +37,14 @@ namespace Interpreter.Classes
         public readonly ResultState State;
 
         /// <summary>
-        /// Сообщение в LOG
+        /// Программное сообщение
         /// </summary>
-        public readonly string LOGMassage;
+        public readonly string? MessageLog;
 
         /// <summary>
-        /// Сообщение в консольную строку
+        /// Сообщение
         /// </summary>
-        public readonly string Massage;
+        public readonly string Message;
 
         /// <summary>
         /// Имя выполняющейся команды
@@ -53,82 +52,58 @@ namespace Interpreter.Classes
         public readonly string NameCommand;
 
         /// <summary>
+        /// Инициализировать объект итога выполнения команды
+        /// </summary>
+        /// <param name="ResultState">Итоговое состояние выполнения</param>
+        /// <param name="Name">Имя команды</param>
+        /// <param name="Message">Сообщение итога</param>
+        /// <param name="MessageLog">Программное сообщение</param>
+        private CommandStateResult(ResultState ResultState, string Name, string Message, string? MessageLog = null)
+        {
+            NameCommand = Name;
+            State = ResultState;
+            this.Message = Message;
+            this.MessageLog = MessageLog ?? string.Empty;
+        }
+
+        /// <summary>
         /// Успешный итог выполнения команды
         /// </summary>
         /// <param name="NameCommand">Имя команды</param>
-        public static CommandStateResult Completed(string NameCommand) => new(ResultState.Complete, NameCommand, string.Empty, string.Empty);
+        /// <param name="Message">Сообщение итога</param>
+        /// <param name="MessageLog">Программное сообщение</param>
+        public static CommandStateResult Completed(string NameCommand, string? Message = null, string? MessageLog = null) =>
+            new(ResultState.Complete, NameCommand, Message ?? string.Empty, MessageLog);
 
         /// <summary>
         /// Ошибочный итог выполнения команды
         /// </summary>
-        /// /// <param name="Message">Текст ошибки выводимый в консоль программу</param>
-        /// <param name="Message_log">Текст который будет записан в лог программы</param>
         /// <param name="Command">Имя команды</param>
-        public static CommandStateResult Failed(string Command, string Message, string Message_log) => new(ResultState.Failed, Command, Message, Message_log);
-
-        /// <summary>
-        /// Ошибочный итог выполнения команды
-        /// </summary>
-        /// /// <param name="Message">Текст ошибки выводимый в консоль программу</param>
-        /// <param name="Message_log">Текст который будет записан в лог программы</param>
-        /// <param name="Command">Имя команды</param>
-        public static CommandStateResult Failed(string Command, string Message) => new(ResultState.Failed, Command, Message);
+        /// <param name="Message">Текст ошибки выводимый в консоль программу</param>
+        /// <param name="MessageLog">Текст который будет записан в лог программы</param>
+        public static CommandStateResult Failed(string Command, string Message, string? MessageLog = null) =>
+            new(ResultState.Failed, Command, Message, MessageLog);
 
         /// <summary>
         /// Ошибочный итог выполнения команды из-за недостатка параметров
         /// </summary>
         /// <param name="NameCommand">Имя команды которая привела к ошибке</param>
-        public static CommandStateResult FaledParameteres(string NameCommand)
-        {
-            return new(ResultState.InvalidParameters, NameCommand, $"Команда \"{NameCommand}\" привела к ошибке из-за недостатка параметров.");
-        }
+        public static CommandStateResult FaledParameteres(string NameCommand) => 
+            new(ResultState.InvalidParameters, NameCommand, $"Команда \"{NameCommand}\" привела к ошибке из-за недостатка параметров.");
 
         /// <summary>
         /// Ошибочный итог выполнения команды из-за типа параметров
         /// </summary>
         /// <param name="NameCommand">Имя команды которая привела к ошибке</param>
         /// <param name="NumberParam">Номер неправильного парметра</param>
-        public static CommandStateResult FaledTypeParameteres(string NameCommand, int NumberParam)
-        {
-            return new(ResultState.InvalidParameters, NameCommand, $"Команда \"{NameCommand}\" привела к ошибке из-за не правильного предоставления типа параметра №{NumberParam}.");
-        }
+        public static CommandStateResult FaledTypeParameteres(string NameCommand, int NumberParam) => 
+            new(ResultState.InvalidParameters, NameCommand, $"Команда \"{NameCommand}\" привела к ошибке из-за не правильного предоставления типа параметра №{NumberParam}.");
 
         /// <summary>
         /// Ошибочный итог выполнения команды из-за несуществующей команды
         /// </summary>
         /// <param name="NameCommand">Имя команды которая привела к ошибке</param>
-        public static CommandStateResult FaledCommand(string NameCommand)
-        {
-            return new(ResultState.InvalidCommand, NameCommand, $"Команда \"{NameCommand}\" не найдена.");
-        }
-
-        /// <summary>
-        /// Инициализировать объект итога выполнения команды
-        /// </summary>
-        /// <param name="ResultState">Итоговое состояние выполнения</param>
-        /// <param name="Massage">Сообщение в консольную строку</param>
-        /// <param name="Massage_log">Сообщение в LOG</param>
-        /// <param name="Namу">Имя команды</param>
-        private CommandStateResult(ResultState ResultState, string Name, string Massage, string Massage_log)
-        {
-            NameCommand = Name;
-            State = ResultState;
-            this.Massage = Massage;
-            LOGMassage = Massage_log;
-        }
-
-        /// <summary>
-        /// Инициализировать объект итога выполнения команды
-        /// </summary>
-        /// <param name="ResultState">Итоговое состояние выполнения</param>
-        /// <param name="Massage">Сообщение в консольную строку</param>
-        /// <param name="Name">Имя команды</param>
-        private CommandStateResult(ResultState ResultState, string Name, string Massage)
-        {
-            NameCommand = Name;
-            State = ResultState;
-            this.Massage = Massage;
-            LOGMassage = string.Empty;
-        }
+        public static CommandStateResult FaledCommand(string NameCommand) => 
+            new(ResultState.InvalidCommand, NameCommand, $"Команда \"{NameCommand}\" не найдена.");
     }
 }
