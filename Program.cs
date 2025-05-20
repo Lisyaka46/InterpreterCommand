@@ -10,7 +10,7 @@ namespace Interpreter
         /// <summary>
         /// Массив консольных команд
         /// </summary>
-        static readonly List<AliasCommand<ICommandAAC>> DataAliases = [];
+        static readonly List<AliasCommand<ICommandOPER>> DataAliases = [];
 
         /// <summary>
         /// Массив консольных команд
@@ -43,15 +43,6 @@ namespace Interpreter
                 BufferCommand = new(Convert.ToInt32(param[0]));
                 return Task.FromResult(CommandStateResult.Completed(Main.Name));
             }),
-
-            new ConsoleCommand("alias", [new Parameter("Name", typeof(string)), new Parameter("Command", typeof(string))],
-                "Показывает содержимое буфера", (Main, param) =>
-            {
-                AliasCommand<ICommandAAC> alias = 
-                    new(param[0].ToString() ?? string.Empty, param[1].ToString() ?? string.Empty, [.. DataConsoleCommand]);
-                DataAliases.Add(alias);
-                return Task.FromResult(CommandStateResult.Completed(Main.Name));
-            }),
         ];
 
         /// <summary>
@@ -67,10 +58,10 @@ namespace Interpreter
             {
                 Console.Write("> ");
                 Command = Console.ReadLine() ?? string.Empty;
-                Result = ICommandAAC.ReadAndExecuteCommand(BufferCommand, [.. DataConsoleCommand], Command);
+                Result = ICommandOPER.ReadAndExecuteCommand(BufferCommand, [.. DataConsoleCommand], Command);
                 if (Result.State == ResultState.InvalidCommand)
                 {
-                    Result = ICommandAAC.ReadAndExecuteCommand(null, [.. DataAliases], Command);
+                    Result = ICommandOPER.ReadAndExecuteCommand(null, [.. DataAliases], Command);
                 }
                 Console.WriteLine($"\"{Result.NameCommand}\" | State: {Result.State} | Message: \"{Result.Message}\"");
             }

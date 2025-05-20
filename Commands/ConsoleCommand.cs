@@ -8,7 +8,7 @@ namespace Interpreter.Commands
     /// <summary>
     /// Консольная команда
     /// </summary>
-    public partial class ConsoleCommand : IConsoleCommand
+    public partial class ConsoleCommand : ICommandOPER
     {
         /// <summary>
         /// Имя команды
@@ -27,9 +27,17 @@ namespace Interpreter.Commands
         public Parameter[] Parameters { get; private set; }
 
         /// <summary>
+        /// Делегат события выполнения команды
+        /// </summary>
+        /// <param name="MainCommand">Выполняющаяся команда</param>
+        /// <param name="ParametersValue">Параметры команды</param>
+        /// <returns>Итог выполнения команды</returns>
+        public delegate Task<CommandStateResult> ExecuteCom(ICommandOPER MainCommand, object[] ParametersValue);
+
+        /// <summary>
         /// Действие которое выполняет команда
         /// </summary>
-        internal event IConsoleCommand.ExecuteCom Execute;
+        internal event ExecuteCom Execute;
 
         /// <summary>
         /// Инициализировать объект консольной команды с параметрами
@@ -38,7 +46,7 @@ namespace Interpreter.Commands
         /// <param name="Parameters">Параметры команды</param>
         /// <param name="Description">Описание команды</param>
         /// <param name="Execute">Действие выполнения</param>
-        public ConsoleCommand(string Name, Parameter[] Parameters, string Description, IConsoleCommand.ExecuteCom Execute)
+        public ConsoleCommand(string Name, Parameter[] Parameters, string Description, ExecuteCom Execute)
         {
             this.Name = Name;
             this.Parameters = Parameters;
@@ -53,7 +61,7 @@ namespace Interpreter.Commands
         /// <param name="Name">Имя</param>
         /// <param name="Description">Описание команды</param>
         /// <param name="Execute">Действие выполнения</param>
-        public ConsoleCommand(string Name, string Description, IConsoleCommand.ExecuteCom Execute)
+        public ConsoleCommand(string Name, string Description, ExecuteCom Execute)
         {
             this.Name = Name;
             this.Description = Description;

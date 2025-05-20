@@ -10,7 +10,7 @@ using Interpreter.Commands;
 
 namespace Interpreter.Interfaces
 {
-    public partial interface ICommandAAC
+    public partial interface ICommandOPER
     {
         /// <summary>
         /// Делегат события выполнения команды
@@ -18,7 +18,7 @@ namespace Interpreter.Interfaces
         /// <param name="MainCommand">Выполняющаяся команда</param>
         /// <param name="ParametersValue">Параметры команды</param>
         /// <returns>Итог выполнения команды</returns>
-        public delegate Task<CommandStateResult> ExecuteCom(ICommandAAC MainCommand);
+        public delegate Task<CommandStateResult> ExecuteCom(ICommandOPER MainCommand);
 
         /// <summary>
         /// Действие которое выполняет команда
@@ -55,7 +55,7 @@ namespace Interpreter.Interfaces
         /// <param name="Commands">Массив поиска консольных команд</param>
         /// <param name="TextCommand">Читаемая команда</param>
         public sealed static CommandStateResult ReadAndExecuteCommand<T>(Classes.Buffer? BufferCommand,
-            [NotNull()] T[] Commands, string TextCommand) where T : ICommandAAC
+            [NotNull()] T[] Commands, string TextCommand) where T : ICommandOPER
         {
             string NameCommand = ReadNameCommand(TextCommand);
             T? SearchCommand = Commands.SingleOrDefault(i => i.Name.Equals(NameCommand));
@@ -66,7 +66,7 @@ namespace Interpreter.Interfaces
                 string[] Parameters = ReadParametersCommand(TextCommand);
                 try
                 {
-                    return ((IConsoleCommand)SearchCommand).ExecuteCommand(Parameters);
+                    return SearchCommand.ExecuteCommand(Parameters);
                 }
                 catch
                 {
@@ -80,7 +80,7 @@ namespace Interpreter.Interfaces
         /// </summary>
         /// <param name="Commands">Массив поиска команд</param>
         /// <param name="TextCommand">Читаемая команда</param>
-        public sealed static T? ReadCommand<T>([NotNull()] T[] Commands, string TextCommand) where T : ICommandAAC
+        public sealed static T? ReadCommand<T>([NotNull()] T[] Commands, string TextCommand) where T : ICommandOPER
         {
             string NameCommand = ReadNameCommand(TextCommand);
             return Commands.SingleOrDefault(i => i.Name.Equals(NameCommand));
