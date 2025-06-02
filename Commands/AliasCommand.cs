@@ -101,7 +101,7 @@ namespace Interpreter.Commands
             if (SourceCommand == null) return CommandStateResult.FaledCommand(ICommandOPER.ReadNameCommand(NameCommand));
             string[] MainParam = new string[parameters.Length + ParametersCommand.Length];
             if (ParametersCommand.Length > 0) ParametersCommand.CopyTo(MainParam, 0);
-            if (parameters.Length > 0) parameters.CopyTo(MainParam, MainParam.Length);
+            if (parameters.Length > 0) parameters.CopyTo(MainParam, ParametersCommand.Length);
             return SourceCommand.ExecuteCommand(MainParam);
         }
     }
