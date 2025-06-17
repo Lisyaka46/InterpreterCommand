@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Interpreter.Classes;
 using Interpreter.Interfaces;
+using InterpreterCommand.Classes;
 
 namespace Interpreter
 {
@@ -10,13 +11,8 @@ namespace Interpreter
         /// <summary>
         /// Массив консольных команд
         /// </summary>
-        static readonly List<AliasCommand<ICommandOPER>> DataAliases = [];
-
-        /// <summary>
-        /// Массив консольных команд
-        /// </summary>
-        static readonly List<ConsoleCommand> DataConsoleCommand =
-        [
+        private static COMInterpreter Interpreter = new(
+            [
             new ConsoleCommand("reboot", "Перезагружает программу", (Main, param) =>
             {
                 Process.Start(Process.GetCurrentProcess().ProcessName, Environment.GetCommandLineArgs());
@@ -27,7 +23,7 @@ namespace Interpreter
             new ConsoleCommand("close", "Закрывает программу", (Main, param) =>
             {
                 Process.GetCurrentProcess().Kill();
-                
+
                 return Task.FromResult(CommandStateResult.Completed(Main.Name));
             }),
 
@@ -43,7 +39,7 @@ namespace Interpreter
                 BufferCommand = new(Convert.ToInt32(param[0]));
                 return Task.FromResult(CommandStateResult.Completed(Main.Name));
             }),
-        ];
+            ]);
 
         /// <summary>
         /// Буфер команд
@@ -58,11 +54,7 @@ namespace Interpreter
             {
                 Console.Write("> ");
                 Command = Console.ReadLine() ?? string.Empty;
-                Result = ICommandOPER.ReadAndExecuteCommand(BufferCommand, [.. DataConsoleCommand], Command);
-                if (Result.State == ResultState.InvalidCommand)
-                {
-                    Result = ICommandOPER.ReadAndExecuteCommand(null, [.. DataAliases], Command);
-                }
+                Result = Interpreter.ReadAndExecuteCommand(BufferCommand, Command);
                 Console.WriteLine($"\"{Result.NameCommand}\" | State: {Result.State} | Message: \"{Result.Message}\"");
             }
         }

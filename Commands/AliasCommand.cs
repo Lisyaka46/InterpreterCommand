@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Interpreter.Interfaces;
 using System.Diagnostics.CodeAnalysis;
 using Interpreter.Classes;
+using InterpreterCommand.Classes;
 
 namespace Interpreter.Commands
 {
@@ -52,8 +53,8 @@ namespace Interpreter.Commands
         public AliasCommand(string name, string command, string description, T? Magnite)
         {
             Name = name;
-            NameCommand = ICommandOPER.ReadNameCommand(command);
-            ParametersCommand = ICommandOPER.ReadParametersCommand(command);
+            NameCommand = COMInterpreter.ReadNameCommand(command);
+            ParametersCommand = COMInterpreter.ReadParametersCommand(command);
             Description = description;
             SourceCommand = Magnite;
             ChangeAbsolutlyParam(Magnite);
@@ -64,15 +65,14 @@ namespace Interpreter.Commands
         /// </summary>
         /// <param name="TextCommand">Текст новой ссылки на команду</param>
         /// <returns></returns>
-        public CommandStateResult ChangeSourceCommand(T[] DataCommand, string TextCommand, string? description)
+        public CommandStateResult ChangeSourceCommand(T? Command, string TextCommand, string? description)
         {
-            string name = ICommandOPER.ReadNameCommand(TextCommand);
-            T? CommandSearch = ICommandOPER.ReadCommand(DataCommand, TextCommand);
-            if (CommandSearch == null) return CommandStateResult.FaledCommand(name);
+            string name = COMInterpreter.ReadNameCommand(TextCommand);
+            if (Command == null) return CommandStateResult.FaledCommand(name);
             NameCommand = name;
-            SourceCommand = CommandSearch;
-            ParametersCommand = ICommandOPER.ReadParametersCommand(TextCommand);
-            ChangeAbsolutlyParam(CommandSearch);
+            SourceCommand = Command;
+            ParametersCommand = COMInterpreter.ReadParametersCommand(TextCommand);
+            ChangeAbsolutlyParam(Command);
             if (description != null) Description = description;
             return CommandStateResult.Completed(NameCommand);
         }
@@ -89,7 +89,7 @@ namespace Interpreter.Commands
         /// </summary>
         /// <param name="DataCommand">Массив данных команд</param>
         /// <returns>Результат выполнения</returns>
-        public CommandStateResult ExecuteCommand() => SourceCommand?.ExecuteCommand() ?? CommandStateResult.FaledCommand(ICommandOPER.ReadNameCommand(NameCommand));
+        public CommandStateResult ExecuteCommand() => SourceCommand?.ExecuteCommand() ?? CommandStateResult.FaledCommand(COMInterpreter.ReadNameCommand(NameCommand));
 
         /// <summary>
         /// Выполнить действие алиаса
@@ -98,7 +98,7 @@ namespace Interpreter.Commands
         /// <returns>Результат выполнения</returns>
         public CommandStateResult ExecuteCommand(string[] parameters)
         {
-            if (SourceCommand == null) return CommandStateResult.FaledCommand(ICommandOPER.ReadNameCommand(NameCommand));
+            if (SourceCommand == null) return CommandStateResult.FaledCommand(COMInterpreter.ReadNameCommand(NameCommand));
             string[] MainParam = new string[parameters.Length + ParametersCommand.Length];
             if (ParametersCommand.Length > 0) ParametersCommand.CopyTo(MainParam, 0);
             if (parameters.Length > 0) parameters.CopyTo(MainParam, ParametersCommand.Length);
