@@ -1,9 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Reflection;
-using System.Windows;
-
-namespace Interpreter.Classes
+﻿namespace Interpreter.Classes
 {
     /// <summary>
     /// Буфер консольных команд

@@ -1,8 +1,7 @@
-﻿using Interpreter.Commands;
-using System.Diagnostics;
-using Interpreter.Classes;
-using Interpreter.Interfaces;
+﻿using Interpreter.Classes;
+using Interpreter.Commands;
 using InterpreterCommand.Classes;
+using System.Diagnostics;
 
 namespace Interpreter
 {

@@ -67,7 +67,7 @@ namespace InterpreterCommand.Classes
             List<ICommandOPER> results = [];
             results.AddRange(MainCommand.Values.Where(selector));
             results.AddRange(MainAliasCommand.Values.Where(selector));
-            return [..results];
+            return [.. results];
         }
 
         /// <summary>

@@ -1,12 +1,5 @@
-﻿using Interpreter.Commands;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Interpreter.Classes;
 using Interpreter.Interfaces;
-using System.Diagnostics.CodeAnalysis;
-using Interpreter.Classes;
 using InterpreterCommand.Classes;
 
 namespace Interpreter.Commands

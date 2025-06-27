@@ -88,7 +88,7 @@
         /// Ошибочный итог выполнения команды из-за недостатка параметров
         /// </summary>
         /// <param name="NameCommand">Имя команды которая привела к ошибке</param>
-        public static CommandStateResult FaledParameteres(string NameCommand) => 
+        public static CommandStateResult FaledParameteres(string NameCommand) =>
             new(ResultState.InvalidParameters, NameCommand, $"Команда \"{NameCommand}\" привела к ошибке из-за недостатка параметров.");
 
         /// <summary>
@@ -96,14 +96,14 @@
         /// </summary>
         /// <param name="NameCommand">Имя команды которая привела к ошибке</param>
         /// <param name="NumberParam">Номер неправильного парметра</param>
-        public static CommandStateResult FaledTypeParameteres(string NameCommand, int NumberParam) => 
+        public static CommandStateResult FaledTypeParameteres(string NameCommand, int NumberParam) =>
             new(ResultState.InvalidParameters, NameCommand, $"Команда \"{NameCommand}\" привела к ошибке из-за не правильного предоставления типа параметра №{NumberParam}.");
 
         /// <summary>
         /// Ошибочный итог выполнения команды из-за несуществующей команды
         /// </summary>
         /// <param name="NameCommand">Имя команды которая привела к ошибке</param>
-        public static CommandStateResult FaledCommand(string NameCommand) => 
+        public static CommandStateResult FaledCommand(string NameCommand) =>
             new(ResultState.InvalidCommand, NameCommand, $"Команда \"{NameCommand}\" не найдена.");
     }
 }
