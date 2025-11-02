@@ -82,20 +82,20 @@ namespace Interpreter.Commands
         /// </summary>
         /// <param name="DataCommand">Массив данных команд</param>
         /// <returns>Результат выполнения</returns>
-        public CommandStateResult ExecuteCommand() => SourceCommand?.ExecuteCommand() ?? CommandStateResult.FaledCommand(COMInterpreter.ReadNameCommand(NameCommand));
+        public async Task<CommandStateResult> ExecuteCommand() => SourceCommand != null ? await SourceCommand.ExecuteCommand() : CommandStateResult.FaledCommand(COMInterpreter.ReadNameCommand(NameCommand));
 
         /// <summary>
         /// Выполнить действие алиаса
         /// </summary>
         /// <param name="parameters">Параметры команды</param>
         /// <returns>Результат выполнения</returns>
-        public CommandStateResult ExecuteCommand(string[] parameters)
+        public async Task<CommandStateResult> ExecuteCommand(string[] parameters)
         {
             if (SourceCommand == null) return CommandStateResult.FaledCommand(COMInterpreter.ReadNameCommand(NameCommand));
             string[] MainParam = new string[parameters.Length + ParametersCommand.Length];
             if (ParametersCommand.Length > 0) ParametersCommand.CopyTo(MainParam, 0);
             if (parameters.Length > 0) parameters.CopyTo(MainParam, ParametersCommand.Length);
-            return SourceCommand.ExecuteCommand(MainParam);
+            return await SourceCommand.ExecuteCommand(MainParam);
         }
     }
 }

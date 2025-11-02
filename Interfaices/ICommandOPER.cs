@@ -39,11 +39,11 @@ namespace Interpreter.Interfaces
         /// <summary>
         /// Создать выполнение команды
         /// </summary>
-        internal CommandStateResult ExecuteCommand();
+        internal Task<CommandStateResult> ExecuteCommand();
 
         /// <summary>
         /// Создать выполнение команды
         /// </summary>
-        protected internal CommandStateResult ExecuteCommand(string[] parameters);
+        protected internal Task<CommandStateResult> ExecuteCommand(string[] parameters);
     }
 }

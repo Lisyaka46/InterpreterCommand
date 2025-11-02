@@ -112,7 +112,7 @@ namespace InterpreterCommand.Classes
         /// </summary>
         /// <param name="BufferCommand">Класс буфера команд</param>
         /// <param name="TextCommand">Читаемая команда</param>
-        public CommandStateResult ReadAndExecuteCommand(Buffer? BufferCommand, string TextCommand)
+        public async Task<CommandStateResult> ReadAndExecuteCommand(Buffer? BufferCommand, string TextCommand)
         {
             string NameCommand = ReadNameCommand(TextCommand);
             BufferCommand?.Add(NameCommand);
@@ -126,11 +126,11 @@ namespace InterpreterCommand.Classes
             string[] Parameters = ReadParametersCommand(TextCommand);
             try
             {
-                return Command.ExecuteCommand(Parameters);
+                return await Command.ExecuteCommand(Parameters);
             }
             catch
             {
-                return Command.ExecuteCommand();
+                return await Command.ExecuteCommand();
             }
         }
 

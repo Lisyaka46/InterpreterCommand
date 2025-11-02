@@ -82,7 +82,7 @@ namespace Interpreter.Commands
         /// Создать выполнение команды
         /// </summary>
         /// <param name="parameters">Параметры команды</param>
-        public CommandStateResult ExecuteCommand(string[] parameters)
+        public async Task<CommandStateResult> ExecuteCommand(string[] parameters)
         {
             if (!AbsolutlyRequiredParameters(parameters)) return CommandStateResult.FaledParameteres(Name);
             object[] MainParameters = [];
@@ -112,15 +112,15 @@ namespace Interpreter.Commands
                     catch (IndexOutOfRangeException) { MainParameters[i] = Parameters[i].DefValue ?? string.Empty; }
                 }
             }
-            return Execute.Invoke(this, MainParameters).Result;
+            return await Execute.Invoke(this, MainParameters);
         }
 
         /// <summary>
         /// Создать выполнение команды
         /// </summary>
-        public CommandStateResult ExecuteCommand()
+        public async Task<CommandStateResult> ExecuteCommand()
         {
-            if (Parameters == null) return Execute.Invoke(this, []).Result;
+            if (Parameters == null) return await Execute.Invoke(this, []);
             return CommandStateResult.FaledParameteres(Name);
         }
     }

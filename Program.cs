@@ -53,7 +53,7 @@ namespace Interpreter
             {
                 Console.Write("> ");
                 Command = Console.ReadLine() ?? string.Empty;
-                Result = Interpreter.ReadAndExecuteCommand(BufferCommand, Command);
+                Result = Interpreter.ReadAndExecuteCommand(BufferCommand, Command).Result;
                 Console.WriteLine($"\"{Result.NameCommand}\" | State: {Result.State} | Message: \"{Result.Message}\"");
             }
         }
