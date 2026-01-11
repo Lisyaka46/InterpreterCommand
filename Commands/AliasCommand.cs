@@ -1,17 +1,16 @@
 ﻿using Interpreter.Classes;
 using Interpreter.Interfaces;
 using InterpreterCommand.Classes;
+using InterpreterCommand.Interfaices;
 
 namespace Interpreter.Commands
 {
     /// <summary>
-    /// Создать алиас на любую команду
+    /// Класс алиаса команды<br/>
+    /// <see href="TCommand" cref=" Тип хранящейся команды в алиасе"/><br/>
+    /// <see href="TViewer" cref=" Тип визуализационного объекта команды"/>
     /// </summary>
-    /// <param name="Name">Имя команды</param>
-    /// <param name="Command">Строка команды выполнения</param>
-    /// <param name="Description">Описание алиаса</param>
-    /// <param name="Magnite">Команда привязки</param>
-    public class AliasCommand<T> : ICommandOPER where T : ICommandOPER
+    public class AliasCommand<TCommand, TViewer> : ICommandOPER<TViewer> where TCommand : ICommandOPER<TViewer> where TViewer : ICommandViewer
     {
         /// <summary>
         /// Имя команды
@@ -36,19 +35,26 @@ namespace Interpreter.Commands
         /// <summary>
         /// Команда к которой ссылается алиас
         /// </summary>
-        public T? SourceCommand { get; private set; }
+        public TCommand? SourceCommand { get; private set; }
 
         /// <summary>
         /// Параметры алиаса
         /// </summary>
         public Parameter[] Parameters { get; private set; } = [];
 
-        public AliasCommand(string name, string command, string description, T? Magnite)
+        /// <summary>
+        /// Инициализация алиаса
+        /// </summary>
+        /// <param name="Name">Имя команды</param>
+        /// <param name="Command">Строка команды выполнения</param>
+        /// <param name="Description">Описание алиаса</param>
+        /// <param name="Magnite">Команда привязки</param>
+        public AliasCommand(string Name, string Command, string Description, TCommand? Magnite)
         {
-            Name = name;
-            NameCommand = COMInterpreter.ReadNameCommand(command);
-            ParametersCommand = COMInterpreter.ReadParametersCommand(command);
-            Description = description;
+            this.Name = Name;
+            NameCommand = COMInterpreterBase.ReadNameCommand(Command);
+            ParametersCommand = COMInterpreterBase.ReadParametersCommand(Command);
+            this.Description = Description;
             SourceCommand = Magnite;
             ChangeAbsolutlyParam(Magnite);
         }
@@ -58,19 +64,19 @@ namespace Interpreter.Commands
         /// </summary>
         /// <param name="TextCommand">Текст новой ссылки на команду</param>
         /// <returns></returns>
-        public CommandStateResult ChangeSourceCommand(T? Command, string TextCommand, string? description)
+        public CommandStateResult ChangeSourceCommand(TCommand? Command, string TextCommand, string? description)
         {
-            string name = COMInterpreter.ReadNameCommand(TextCommand);
+            string name = COMInterpreterBase.ReadNameCommand(TextCommand);
             if (Command == null) return CommandStateResult.FaledCommand(name);
             NameCommand = name;
             SourceCommand = Command;
-            ParametersCommand = COMInterpreter.ReadParametersCommand(TextCommand);
+            ParametersCommand = COMInterpreterBase.ReadParametersCommand(TextCommand);
             ChangeAbsolutlyParam(Command);
             if (description != null) Description = description;
             return CommandStateResult.Completed(NameCommand);
         }
 
-        private void ChangeAbsolutlyParam(T? CommandMagnite)
+        private void ChangeAbsolutlyParam(TCommand? CommandMagnite)
         {
             Parameter[] AbsolutlyParamCommand = CommandMagnite?.Parameters ?? [];
             if (ParametersCommand.Length == 0) Parameters = AbsolutlyParamCommand;
@@ -80,22 +86,25 @@ namespace Interpreter.Commands
         /// <summary>
         /// Выполнить действие алиаса
         /// </summary>
-        /// <param name="DataCommand">Массив данных команд</param>
+        /// <param name="CommandViewer">Объект визуализирующий команду</param>
         /// <returns>Результат выполнения</returns>
-        public async Task<CommandStateResult> ExecuteCommand() => SourceCommand != null ? await SourceCommand.ExecuteCommand() : CommandStateResult.FaledCommand(COMInterpreter.ReadNameCommand(NameCommand));
+        public async Task<CommandStateResult> ExecuteCommand(TViewer? CommandViewer) =>
+            SourceCommand != null ? await SourceCommand.ExecuteCommand(CommandViewer) :
+            CommandStateResult.FaledCommand(COMInterpreterBase.ReadNameCommand(NameCommand));
 
         /// <summary>
         /// Выполнить действие алиаса
         /// </summary>
-        /// <param name="parameters">Параметры команды</param>
+        /// <param name="Param">Параметры команды</param>
+        /// <param name="CommandViewer">Объект визуализирующий команду</param>
         /// <returns>Результат выполнения</returns>
-        public async Task<CommandStateResult> ExecuteCommand(string[] parameters)
+        public async Task<CommandStateResult> ExecuteCommand(string[] Param, TViewer? CommandViewer)
         {
-            if (SourceCommand == null) return CommandStateResult.FaledCommand(COMInterpreter.ReadNameCommand(NameCommand));
-            string[] MainParam = new string[parameters.Length + ParametersCommand.Length];
+            if (SourceCommand == null) return CommandStateResult.FaledCommand(COMInterpreterBase.ReadNameCommand(NameCommand));
+            string[] MainParam = new string[Param.Length + ParametersCommand.Length];
             if (ParametersCommand.Length > 0) ParametersCommand.CopyTo(MainParam, 0);
-            if (parameters.Length > 0) parameters.CopyTo(MainParam, ParametersCommand.Length);
-            return await SourceCommand.ExecuteCommand(MainParam);
+            if (Param.Length > 0) Param.CopyTo(MainParam, ParametersCommand.Length);
+            return await SourceCommand.ExecuteCommand(MainParam, CommandViewer);
         }
     }
 }

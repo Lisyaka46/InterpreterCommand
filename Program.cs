@@ -1,6 +1,7 @@
 ﻿using Interpreter.Classes;
 using Interpreter.Commands;
 using InterpreterCommand.Classes;
+using InterpreterCommand.Interfaices;
 using System.Diagnostics;
 
 namespace Interpreter
@@ -10,30 +11,30 @@ namespace Interpreter
         /// <summary>
         /// Массив консольных команд
         /// </summary>
-        private static COMInterpreter Interpreter = new(
+        private static COMInterpreter<ICommandViewer> Interpreter = new(
             [
-            new ConsoleCommand("reboot", "Перезагружает программу", (Main, param) =>
+            new ConsoleCommand<ICommandViewer>("reboot", "Перезагружает программу", (Main, param, CV) =>
             {
                 Process.Start(Process.GetCurrentProcess().ProcessName, Environment.GetCommandLineArgs());
                 Process.GetCurrentProcess().Kill();
                 return Task.FromResult(CommandStateResult.Completed(Main.Name));
             }),
 
-            new ConsoleCommand("close", "Закрывает программу", (Main, param) =>
+            new ConsoleCommand<ICommandViewer>("close", "Закрывает программу", (Main, param, CV) =>
             {
                 Process.GetCurrentProcess().Kill();
 
                 return Task.FromResult(CommandStateResult.Completed(Main.Name));
             }),
 
-            new ConsoleCommand("buffer", "Показывает содержимое буфера", (Main, param) =>
+            new ConsoleCommand<ICommandViewer>("buffer", "Показывает содержимое буфера", (Main, param, CV) =>
             {
                 if (BufferCommand != null) Console.WriteLine("[" + string.Join(',', BufferCommand.BufferElements) + "]");
                 else Console.WriteLine("[null]");
                 return Task.FromResult(CommandStateResult.Completed(Main.Name));
             }),
 
-            new ConsoleCommand("set-buffer", [new Parameter("Count", typeof(int))],"Показывает содержимое буфера", (Main, param) =>
+            new ConsoleCommand<ICommandViewer>("set-buffer", [new Parameter("Count", typeof(int))],"Показывает содержимое буфера", (Main, param, CV) =>
             {
                 BufferCommand = new(Convert.ToInt32(param[0]));
                 return Task.FromResult(CommandStateResult.Completed(Main.Name));
@@ -53,7 +54,7 @@ namespace Interpreter
             {
                 Console.Write("> ");
                 Command = Console.ReadLine() ?? string.Empty;
-                Result = Interpreter.ReadAndExecuteCommand(BufferCommand, Command).Result;
+                Result = Interpreter.ReadAndExecuteCommand(BufferCommand, Command, null).Result;
                 Console.WriteLine($"\"{Result.NameCommand}\" | State: {Result.State} | Message: \"{Result.Message}\"");
             }
         }

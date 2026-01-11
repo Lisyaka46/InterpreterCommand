@@ -1,5 +1,6 @@
 ﻿using Interpreter.Classes;
 using Interpreter.Interfaces;
+using InterpreterCommand.Interfaices;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Interpreter.Commands
@@ -7,7 +8,7 @@ namespace Interpreter.Commands
     /// <summary>
     /// Консольная команда
     /// </summary>
-    public partial class ConsoleCommand : ICommandOPER
+    public partial class ConsoleCommand<TViewer> : ICommandOPER<TViewer> where TViewer : ICommandViewer
     {
         /// <summary>
         /// Имя команды
@@ -30,8 +31,9 @@ namespace Interpreter.Commands
         /// </summary>
         /// <param name="MainCommand">Выполняющаяся команда</param>
         /// <param name="ParametersValue">Параметры команды</param>
+        /// <param name="CommandViewer">Объект визуализирующий команду</param>
         /// <returns>Итог выполнения команды</returns>
-        public delegate Task<CommandStateResult> ExecuteCom(ICommandOPER MainCommand, object[] ParametersValue);
+        public delegate Task<CommandStateResult> ExecuteCom(ICommandOPER<TViewer> MainCommand, object[] ParametersValue, TViewer? CommandViewer);
 
         /// <summary>
         /// Действие которое выполняет команда
@@ -81,10 +83,11 @@ namespace Interpreter.Commands
         /// <summary>
         /// Создать выполнение команды
         /// </summary>
-        /// <param name="parameters">Параметры команды</param>
-        public async Task<CommandStateResult> ExecuteCommand(string[] parameters)
+        /// <param name="Param">Параметры команды</param>
+        /// <param name="CommandViewer">Объект визуализирующий команду</param>
+        public async Task<CommandStateResult> ExecuteCommand(string[] Param, TViewer? CommandViewer)
         {
-            if (!AbsolutlyRequiredParameters(parameters)) return CommandStateResult.FaledParameteres(Name);
+            if (!AbsolutlyRequiredParameters(Param)) return CommandStateResult.FaledParameteres(Name);
             object[] MainParameters = [];
             if (Parameters != null)
             {
@@ -97,30 +100,31 @@ namespace Interpreter.Commands
                         {
                             try
                             {
-                                MainParameters[i] = Convert.ToInt32(parameters[i]);
+                                MainParameters[i] = Convert.ToInt32(Param[i]);
                             }
                             catch (FormatException) { return CommandStateResult.FaledTypeParameteres(Name, i + 1); }
                         }
                         else if (Parameters[i].TypeP == typeof(bool))
                         {
-                            if (parameters[i].ToLower().Equals("true") || parameters[i].Equals("1")) MainParameters[i] = true;
-                            else if (parameters[i].ToLower().Equals("false") || parameters[i].Equals("0")) MainParameters[i] = false;
+                            if (Param[i].ToLower().Equals("true") || Param[i].Equals("1")) MainParameters[i] = true;
+                            else if (Param[i].ToLower().Equals("false") || Param[i].Equals("0")) MainParameters[i] = false;
                             else return CommandStateResult.FaledTypeParameteres(Name, i + 1);
                         }
-                        else MainParameters[i] = parameters[i];
+                        else MainParameters[i] = Param[i];
                     }
                     catch (IndexOutOfRangeException) { MainParameters[i] = Parameters[i].DefValue ?? string.Empty; }
                 }
             }
-            return await Execute.Invoke(this, MainParameters);
+            return await Execute.Invoke(this, MainParameters, CommandViewer);
         }
 
         /// <summary>
         /// Создать выполнение команды
         /// </summary>
-        public async Task<CommandStateResult> ExecuteCommand()
+        /// <param name="CommandViewer">Объект визуализирующий команду</param>
+        public async Task<CommandStateResult> ExecuteCommand(TViewer? CommandViewer)
         {
-            if (Parameters == null) return await Execute.Invoke(this, []);
+            if (Parameters == null) return await Execute.Invoke(this, [], CommandViewer);
             return CommandStateResult.FaledParameteres(Name);
         }
     }
