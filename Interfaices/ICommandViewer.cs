@@ -17,5 +17,12 @@ namespace InterpreterCommand.Interfaices
         /// </summary>
         /// <param name="Source">Добавляемый текст</param>
         public void AddString(string Source);
+
+        /// <summary>
+        /// Добавить новый текст исходя из входящего объекта
+        /// </summary>
+        /// <param name="Array">Массив зависимых объектов</param>
+        /// <param name="Function">Преобразование данных объекта в строку</param>
+        public void AddString<TSource>(TSource[] Array, Func<TSource, string?> Function);
     }
 }
