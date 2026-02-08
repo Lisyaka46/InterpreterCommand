@@ -21,19 +21,17 @@ namespace InterpreterCommand.Classes
             string[] Parameters = []; // command
             if (TextCommand.Contains('*')) // command * param1, param2, param3 ...
             {
+                Match Name = RegexNameCommand().Match(TextCommand);
+                string ParametersString = ClearAnyOneReplySymbol(TextCommand[(Name.Length + 1)..], ' ');
+                if (RegexAnyOneSymbolParameter().Count(ParametersString) == 0) return Parameters;
+                else if (ParametersString[0] is ' ') ParametersString = ParametersString[1..];
+
                 Parameters = [..
-                    RegexSortParamCommand().Matches(
-                        RegexParameterCommand().Match(TextCommand).Value[1..])
-                    .Select((i) => i.Value) ];
+                    RegexSortParamCommand().Matches(ParametersString).Select((i) => i.Value) ];
                 for (int i = 0; i < Parameters.Length; i++)
                 {
-                    switch (Parameters[i][0])
-                    {
-                        case ' ':
-                        case '~':
-                            Parameters[i] = Parameters[i][1..];
-                            break;
-                    }
+                    if (Parameters[i][0] is ' ' or '~')
+                        Parameters[i] = Parameters[i][1..];
                     Parameters[i] = Parameters[i].Replace("%,", ",");
                     Parameters[i] = Parameters[i].Replace("%%", "%");
                 }
@@ -45,25 +43,33 @@ namespace InterpreterCommand.Classes
         /// Прочитать имя команды
         /// </summary>
         /// <param name="TextCommand">Читаемая команда</param>
-        public static string ReadNameCommand(string TextCommand)
-        {
-            string Name;
-            if (TextCommand.Contains('*')) // command * param1, param2, param3 ...
-                Name = ClearReplySymbol(RegexNameCommand().Match(TextCommand).Value, ' ');
-            else // command
-                Name = ClearReplySymbol(TextCommand, ' ');
-            return Name.Replace(' ', '_').ToLower();
-        }
+        public static string ReadNameCommand(string TextCommand) =>
+            ClearAllReplySymbol(RegexNameCommand().Match(TextCommand).Value, ' ').Replace(' ', '_').ToLower();
 
         /// <summary>
-        /// Удаление повторяющихся символов
+        /// Удаление повторяющихся символов (bbbabbb) => (bab)
         /// </summary>
         /// <param name="Text">Текст</param>
         /// <param name="Symbol">символ поиска в тексте</param>
         /// <returns>Очищенный текст от повторяющегося символа</returns>
-        private static string ClearReplySymbol(string Text, char Symbol)
+        private static string ClearAllReplySymbol(string Text, char Symbol)
         {
             foreach (Match m in Regex.Matches(Text, Symbol + @"{2,}"))
+            {
+                Text = Text.Replace(m.Value, Symbol.ToString());
+            }
+            return Text;
+        }
+
+        /// <summary>
+        /// Удаление повторяющихся символов <b>Только в начале строки</b> (bbbabbb) => (babbb)
+        /// </summary>
+        /// <param name="Text">Текст</param>
+        /// <param name="Symbol">символ поиска в тексте</param>
+        /// <returns>Очищенный текст от повторяющегося символа</returns>
+        private static string ClearAnyOneReplySymbol(string Text, char Symbol)
+        {
+            foreach (Match m in Regex.Matches(Text, $"^{Symbol}" + @"{2,}"))
             {
                 Text = Text.Replace(m.Value, Symbol.ToString());
             }
@@ -78,17 +84,17 @@ namespace InterpreterCommand.Classes
         private static partial Regex RegexNameCommand();
 
         /// <summary>
-        /// Регулярное выражение сортировки имени и параметров команды
-        /// </summary>
-        /// <returns>Регулярное выражение</returns>
-        [GeneratedRegex(@"\*.*")]
-        private static partial Regex RegexParameterCommand();
-
-        /// <summary>
         /// Регулярное выражение сортировки параметров от специальных символов
         /// </summary>
         /// <returns>Регулярное выражение</returns>
         [GeneratedRegex(@"([^%,]+|%,|%%)+")]
         private static partial Regex RegexSortParamCommand();
+
+        /// <summary>
+        /// Регулярное выражение не пробела
+        /// </summary>
+        /// <returns>Регулярное выражение</returns>
+        [GeneratedRegex(@"[^ ]")]
+        private static partial Regex RegexAnyOneSymbolParameter();
     }
 }

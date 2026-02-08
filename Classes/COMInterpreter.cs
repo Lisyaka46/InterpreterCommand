@@ -1,6 +1,7 @@
 ﻿using Interpreter.Classes;
 using Interpreter.Commands;
 using Interpreter.Interfaces;
+using InterpreterCommand.Commands;
 using InterpreterCommand.Interfaices;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
@@ -10,17 +11,17 @@ namespace InterpreterCommand.Classes
 {
     public class COMInterpreter<TViewer> : COMInterpreterBase where TViewer : ICommandViewer
     {
-        private Dictionary<string, ICommandOPER<TViewer>> MainCommand;
+        private Dictionary<string, CommandOPER<TViewer>> MainCommand;
         /// <summary>
         /// Массив команд доступных по ключу для использования интерпретатором
         /// </summary>
-        public ReadOnlyDictionary<string, ICommandOPER<TViewer>> Commands => MainCommand.AsReadOnly();
+        public ReadOnlyDictionary<string, CommandOPER<TViewer>> Commands => MainCommand.AsReadOnly();
 
-        private Dictionary<string, AliasCommand<ICommandOPER<TViewer>, TViewer>> MainAliasCommand;
+        private Dictionary<string, AliasCommand<CommandOPER<TViewer>, TViewer>> MainAliasCommand;
         /// <summary>
         /// Массив алиасов доступных по ключу для использования интерпретатором
         /// </summary>
-        public ReadOnlyDictionary<string, AliasCommand<ICommandOPER<TViewer>, TViewer>> Aliases => MainAliasCommand.AsReadOnly();
+        public ReadOnlyDictionary<string, AliasCommand<CommandOPER<TViewer>, TViewer>> Aliases => MainAliasCommand.AsReadOnly();
 
         /// <summary>
         /// Количество алиасов
@@ -37,15 +38,15 @@ namespace InterpreterCommand.Classes
         /// </summary>
         /// <param name="NameCommand">Имя команды</param>
         /// <returns>Возможно найденная команда</returns>
-        public ICommandOPER<TViewer>? GetCommandFindName(string NameCommand) =>
-            MainCommand.TryGetValue(NameCommand, out ICommandOPER<TViewer>? value) ? value : null;
+        public CommandOPER<TViewer>? GetCommandFindName(string NameCommand) =>
+            MainCommand.TryGetValue(NameCommand, out CommandOPER<TViewer>? value) ? value : null;
 
         /// <summary>
         /// Добавить команду для использования интерпретатором
         /// </summary>
         /// <param name="Command">Добавляемая команда</param>
         /// <returns>Состояние, добавилась или нет команда</returns>
-        public bool AddCommand(ICommandOPER<TViewer> Command) => MainCommand.TryAdd(Command.Name, Command);
+        public bool AddCommand(CommandOPER<TViewer> Command) => MainCommand.TryAdd(Command.Name, Command);
 
         /// <summary>
         /// Добавить алиас на команду
@@ -54,7 +55,7 @@ namespace InterpreterCommand.Classes
         /// <returns>Состояние, добавилась или нет команда</returns>
         public bool AddAliasCommand(string Name, string Command, string Description)
         {
-            AliasCommand<ICommandOPER<TViewer>, TViewer> alias = new(Name, Command, Description, ReadCommand(Command));
+            AliasCommand<CommandOPER<TViewer>, TViewer> alias = new(Name, Command, Description, ReadCommand(Command));
             return MainAliasCommand.TryAdd(alias.Name, alias);
         }
 
@@ -85,9 +86,9 @@ namespace InterpreterCommand.Classes
         /// Создать объект интерпретатора с пользовательскими командами
         /// </summary>
         /// <param name="commands">Добавляемый массив используемых команд</param>
-        public COMInterpreter(IEnumerable<ICommandOPER<TViewer>> commands)
+        public COMInterpreter(IEnumerable<CommandOPER<TViewer>> commands)
         {
-            MainCommand = new Dictionary<string, ICommandOPER<TViewer>>(commands.ToDictionary(x => x.Name, x => x));
+            MainCommand = new Dictionary<string, CommandOPER<TViewer>>(commands.ToDictionary(x => x.Name, x => x));
             MainAliasCommand = [];
         }
 
@@ -95,12 +96,14 @@ namespace InterpreterCommand.Classes
         /// Найти команду любого содержания
         /// </summary>
         /// <param name="TextCommand">Читаемая команда</param>
-        public ICommandOPER<TViewer>? ReadCommand(string TextCommand)
+        public CommandOPER<TViewer>? ReadCommand(string TextCommand)
         {
-            MainCommand.TryGetValue(ReadNameCommand(TextCommand), out ICommandOPER<TViewer>? MainCommandIntepreter);
+            string Command = ReadNameCommand(TextCommand);
+            if (Command[^1] == '*') Command = Command[..^1];
+            MainCommand.TryGetValue(Command, out CommandOPER<TViewer>? MainCommandIntepreter);
             if (MainCommandIntepreter == null)
             {
-                MainAliasCommand.TryGetValue(ReadNameCommand(TextCommand), out AliasCommand<ICommandOPER<TViewer>, TViewer>? AliasCommandIntepreter);
+                MainAliasCommand.TryGetValue(Command, out AliasCommand<CommandOPER<TViewer>, TViewer>? AliasCommandIntepreter);
                 return AliasCommandIntepreter;
             }
             return MainCommandIntepreter;
@@ -111,9 +114,9 @@ namespace InterpreterCommand.Classes
         /// <b>Не ищет алиасы</b>
         /// </summary>
         /// <param name="TextCommand">Читаемая команда</param>
-        public T? ReadCommand<T>(string TextCommand) where T : ICommandOPER<TViewer>
+        public T? ReadCommand<T>(string TextCommand) where T : CommandOPER<TViewer>
         {
-            MainCommand.TryGetValue(ReadNameCommand(TextCommand), out ICommandOPER<TViewer>? CommandIntepreter);
+            MainCommand.TryGetValue(ReadNameCommand(TextCommand), out CommandOPER<TViewer>? CommandIntepreter);
             return CommandIntepreter?.GetType() == typeof(T) ? (T)CommandIntepreter : default;
         }
 
@@ -121,8 +124,8 @@ namespace InterpreterCommand.Classes
         /// Найти алиас команды
         /// </summary>
         /// <param name="TextCommand">Читаемая команда алиаса</param>
-        public AliasCommand<ICommandOPER<TViewer>, TViewer>? ReadAliasCommand(string TextCommand) =>
-            MainAliasCommand.TryGetValue(ReadNameCommand(TextCommand), out AliasCommand<ICommandOPER<TViewer>, TViewer>? SourceCommand) ? SourceCommand : null;
+        public AliasCommand<CommandOPER<TViewer>, TViewer>? ReadAliasCommand(string TextCommand) =>
+            MainAliasCommand.TryGetValue(ReadNameCommand(TextCommand), out AliasCommand<CommandOPER<TViewer>, TViewer>? SourceCommand) ? SourceCommand : null;
 
         /// <summary>
         /// Прочитать и выполнить команду
@@ -134,10 +137,10 @@ namespace InterpreterCommand.Classes
         {
             string NameCommand = ReadNameCommand(TextCommand);
             BufferCommand?.Add(NameCommand);
-            bool CompleteSearch = MainCommand.TryGetValue(NameCommand, out ICommandOPER<TViewer>? Command);
+            bool CompleteSearch = MainCommand.TryGetValue(NameCommand, out CommandOPER<TViewer>? Command);
             if (Command == null)
             {
-                CompleteSearch = MainAliasCommand.TryGetValue(NameCommand, out AliasCommand<ICommandOPER<TViewer>, TViewer>? Alias);
+                CompleteSearch = MainAliasCommand.TryGetValue(NameCommand, out AliasCommand<CommandOPER<TViewer>, TViewer>? Alias);
                 Command = Alias;
             }
             if (!CompleteSearch || Command == null) return CommandStateResult.FaledCommand(NameCommand);
