@@ -1,6 +1,7 @@
 ﻿using Interpreter.Classes;
 using Interpreter.Interfaces;
 using InterpreterCommand.Classes;
+using InterpreterCommand.Commands;
 using InterpreterCommand.Interfaices;
 
 namespace Interpreter.Commands
@@ -10,13 +11,8 @@ namespace Interpreter.Commands
     /// <see href="TCommand" cref=" Тип хранящейся команды в алиасе"/><br/>
     /// <see href="TViewer" cref=" Тип визуализационного объекта команды"/>
     /// </summary>
-    public class AliasCommand<TCommand, TViewer> : ICommandOPER<TViewer> where TCommand : ICommandOPER<TViewer> where TViewer : ICommandViewer
+    public class AliasCommand<TCommand, TViewer> : CommandOPER<TViewer> where TCommand : CommandOPER<TViewer> where TViewer : ICommandViewer
     {
-        /// <summary>
-        /// Имя команды
-        /// </summary>
-        public string Name { get; }
-
         /// <summary>
         /// Команда которую выполняет алиас
         /// </summary>
@@ -28,19 +24,9 @@ namespace Interpreter.Commands
         public string[] ParametersCommand { get; private set; }
 
         /// <summary>
-        /// Описание алиаса
-        /// </summary>
-        public string Description { get; set; }
-
-        /// <summary>
         /// Команда к которой ссылается алиас
         /// </summary>
         public TCommand? SourceCommand { get; private set; }
-
-        /// <summary>
-        /// Параметры алиаса
-        /// </summary>
-        public Parameter[] Parameters { get; private set; } = [];
 
         /// <summary>
         /// Инициализация алиаса
@@ -88,7 +74,7 @@ namespace Interpreter.Commands
         /// </summary>
         /// <param name="CommandViewer">Объект визуализирующий команду</param>
         /// <returns>Результат выполнения</returns>
-        public async Task<CommandStateResult> ExecuteCommand(TViewer? CommandViewer) =>
+        public new async Task<CommandStateResult> ExecuteCommand(TViewer? CommandViewer) =>
             SourceCommand != null ? await SourceCommand.ExecuteCommand(CommandViewer) :
             CommandStateResult.FaledCommand(COMInterpreterBase.ReadNameCommand(NameCommand));
 
@@ -98,7 +84,7 @@ namespace Interpreter.Commands
         /// <param name="Param">Параметры команды</param>
         /// <param name="CommandViewer">Объект визуализирующий команду</param>
         /// <returns>Результат выполнения</returns>
-        public async Task<CommandStateResult> ExecuteCommand(string[] Param, TViewer? CommandViewer)
+        public new async Task<CommandStateResult> ExecuteCommand(string[] Param, TViewer? CommandViewer)
         {
             if (SourceCommand == null) return CommandStateResult.FaledCommand(COMInterpreterBase.ReadNameCommand(NameCommand));
             string[] MainParam = new string[Param.Length + ParametersCommand.Length];
