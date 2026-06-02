@@ -99,7 +99,8 @@ namespace InterpreterCommand.Classes
         public CommandOPER<TViewer>? ReadCommand(string TextCommand)
         {
             string Command = ReadNameCommand(TextCommand);
-            if (Command[^1] == '*') Command = Command[..^1];
+            if (Command.Length == 0) return null;
+            else if (Command[^1] == '*') Command = Command[..^1];
             MainCommand.TryGetValue(Command, out CommandOPER<TViewer>? MainCommandIntepreter);
             if (MainCommandIntepreter == null)
             {
