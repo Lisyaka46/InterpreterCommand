@@ -1,12 +1,7 @@
 ﻿using Interpreter.Classes;
 using Interpreter.Interfaces;
 using InterpreterCommand.Interfaices;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InterpreterCommand.Commands
 {
@@ -49,6 +44,11 @@ namespace InterpreterCommand.Commands
         public bool IsAsyncTokenWhileProcessEnabled => (SourceTokenWhileProcess?.Token.CanBeCanceled) ?? false;
 
         /// <summary>
+        /// Уровень доступа к команде
+        /// </summary>
+        internal CommandLevel Level;
+
+        /// <summary>
         /// Активное состояние исполнения команды (true, если исполняется; иначе false)
         /// </summary>
         private bool IsExecutableCommand = false;
@@ -65,21 +65,7 @@ namespace InterpreterCommand.Commands
         /// <summary>
         /// Действие которое выполняет команда
         /// </summary>
-        [AllowNull()]
-        internal ExecuteCom Execute;
-
-        ///// <summary>
-        ///// Инициализировать объект консольной команды без параметров
-        ///// </summary>
-        ///// <param name="Name">Имя</param>
-        ///// <param name="Description">Описание команды</param>
-        ///// <param name="Execute">Действие выполнения</param>
-        //public ConsoleCommand(string Name, string Description, ExecuteCom Execute)
-        //{
-        //    this.Name = Name;
-        //    this.Description = Description;
-        //    this.Execute = Execute;
-        //}
+        internal ExecuteCom Execute = null!;
 
         /// <summary>
         /// Узнать написаны ли обязательные параметры команды

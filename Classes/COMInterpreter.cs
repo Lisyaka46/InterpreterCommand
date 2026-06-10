@@ -38,24 +38,28 @@ namespace InterpreterCommand.Classes
         /// </summary>
         /// <param name="NameCommand">Имя команды</param>
         /// <returns>Возможно найденная команда</returns>
-        public CommandOPER<TViewer>? GetCommandFindName(string NameCommand) =>
-            MainCommand.TryGetValue(NameCommand, out CommandOPER<TViewer>? value) ? value : null;
+        public CommandOPER<TViewer>? GetCommandFindName(string NameCommand, CommandLevel SourceLevel) =>
+            MainCommand.TryGetValue(NameCommand, out CommandOPER<TViewer>? value) && SourceLevel <= value.Level ? value : null;
 
         /// <summary>
         /// Добавить команду для использования интерпретатором
         /// </summary>
         /// <param name="Command">Добавляемая команда</param>
         /// <returns>Состояние, добавилась или нет команда</returns>
-        public bool AddCommand(CommandOPER<TViewer> Command) => MainCommand.TryAdd(Command.Name, Command);
+        public bool AddCommand(CommandOPER<TViewer> Command)
+        {
+            Command.Level = CommandLevel.Basic;
+            return MainCommand.TryAdd(Command.Name, Command);
+        }
 
         /// <summary>
         /// Добавить алиас на команду
         /// </summary>
         /// <param name="Command">Добавляемая команда</param>
         /// <returns>Состояние, добавилась или нет команда</returns>
-        public bool AddAliasCommand(string Name, string Command, string Description)
+        public bool AddAliasCommand(string Name, string Command, string Description, CommandLevel SourceLevel)
         {
-            AliasCommand<CommandOPER<TViewer>, TViewer> alias = new(Name, Command, Description, ReadCommand(Command));
+            AliasCommand<CommandOPER<TViewer>, TViewer> alias = new(Name, Command, Description, ReadCommand(Command, SourceLevel));
             return MainAliasCommand.TryAdd(alias.Name, alias);
         }
 
@@ -96,7 +100,7 @@ namespace InterpreterCommand.Classes
         /// Найти команду любого содержания
         /// </summary>
         /// <param name="TextCommand">Читаемая команда</param>
-        public CommandOPER<TViewer>? ReadCommand(string TextCommand)
+        public CommandOPER<TViewer>? ReadCommand(string TextCommand, CommandLevel SourceLevel)
         {
             string Command = ReadNameCommand(TextCommand);
             if (Command.Length == 0) return null;
@@ -107,7 +111,7 @@ namespace InterpreterCommand.Classes
                 MainAliasCommand.TryGetValue(Command, out AliasCommand<CommandOPER<TViewer>, TViewer>? AliasCommandIntepreter);
                 return AliasCommandIntepreter;
             }
-            return MainCommandIntepreter;
+            return SourceLevel <= MainCommandIntepreter?.Level ? MainCommandIntepreter : null;
         }
 
         /// <summary>
@@ -115,10 +119,10 @@ namespace InterpreterCommand.Classes
         /// <b>Не ищет алиасы</b>
         /// </summary>
         /// <param name="TextCommand">Читаемая команда</param>
-        public T? ReadCommand<T>(string TextCommand) where T : CommandOPER<TViewer>
+        public T? ReadCommand<T>(string TextCommand, CommandLevel SourceLevel) where T : CommandOPER<TViewer>
         {
             MainCommand.TryGetValue(ReadNameCommand(TextCommand), out CommandOPER<TViewer>? CommandIntepreter);
-            return CommandIntepreter?.GetType() == typeof(T) ? (T)CommandIntepreter : default;
+            return CommandIntepreter?.GetType() == typeof(T) && SourceLevel <= CommandIntepreter.Level ? (T)CommandIntepreter : default;
         }
 
         /// <summary>
@@ -134,7 +138,7 @@ namespace InterpreterCommand.Classes
         /// <param name="BufferCommand">Класс буфера команд</param>
         /// <param name="TextCommand">Читаемая команда</param>
         /// <param name="CommandViewer">Объект визуализирующий команду</param>
-        public async Task<CommandStateResult> ReadAndExecuteCommand(Buffer? BufferCommand, string TextCommand, TViewer? CommandViewer)
+        public async Task<CommandStateResult> ReadAndExecuteCommand(Buffer? BufferCommand, string TextCommand, TViewer? CommandViewer, CommandLevel SourceLevel)
         {
             string NameCommand = ReadNameCommand(TextCommand);
             BufferCommand?.Add(NameCommand);
@@ -145,6 +149,7 @@ namespace InterpreterCommand.Classes
                 Command = Alias;
             }
             if (!CompleteSearch || Command == null) return CommandStateResult.FaledCommand(NameCommand);
+            else if (SourceLevel > Command.Level) return CommandStateResult.FaledAccessCommand(NameCommand);
             string[] Parameters = ReadParametersCommand(TextCommand);
             try
             {

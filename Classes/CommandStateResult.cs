@@ -105,5 +105,12 @@
         /// <param name="NameCommand">Имя команды которая привела к ошибке</param>
         public static CommandStateResult FaledCommand(string NameCommand) =>
             new(ResultState.InvalidCommand, NameCommand, $"Команда \"{NameCommand}\" не найдена.");
+
+        /// <summary>
+        /// Ошибочный итог выполнения команды из-за не правильного доступа к команде
+        /// </summary>
+        /// <param name="NameCommand">Имя команды которая привела к ошибке</param>
+        public static CommandStateResult FaledAccessCommand(string NameCommand) =>
+            new(ResultState.Failed, NameCommand, $"Недостаточно прав для выполнения команды \"{NameCommand}\".");
     }
 }
